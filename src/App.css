@@ -12,3 +12,29 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+
+.fixed {
+  background: #bbb;
+}
+
+.grid td {
+  border: 1px solid #bbb;
+  width: 25px;
+  height: 25px;
+}
+
+.grid td:not(.fixed, .total) {
+  cursor: pointer;
+}
+
+.grid {
+  border-collapse: collapse;
+}
+
+.grid-container {
+  margin: 0 30px;
+}
+
+.grid.finished td:not(.total) {
+  background: #80dd80;
+}
