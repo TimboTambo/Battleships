@@ -74,19 +74,132 @@ class Grid extends Component {
   handleClick(x, y) {
     let grid = this.state.grid;
     let square = grid[y][x];
+    let squareToLeft, squareToRight, squareToTop, squareToBottom;
     if (square.isDisplayed) {
       return;
     }
-    let conversionLookup = {
-      "Q":"W",
-      "W":"S", 
-      "S": "L",
-      "L": "T",
-      "T": "R",
-      "R": "B",
-      "B": "M",
-      "M": "Q"};
-    square.displayText = conversionLookup[square.displayText]; 
+    
+    if (square.displayText === "Q") {
+      square.displayText = "W";
+    }
+    else if (square.displayText === "W") {
+      squareToLeft = x > 0 ? grid[y][x-1] : {};
+      squareToRight = x < grid.length - 1 ? grid[y][x+1] : {};
+      squareToTop = y > 0 ? grid[y-1][x] : {};
+      squareToBottom = y < grid.length - 1 ? grid[y+1][x] : {};
+
+      if ((squareToLeft.displayText === "L" || squareToLeft.displayText === "M") && (squareToRight.displayText === "M" || squareToRight.displayText === "R")) {
+        square.displayText = "M";
+      }
+      else if (squareToLeft.displayText === "L" || squareToLeft.displayText === "M") {
+        square.displayText = "R";
+      }
+      else if (squareToLeft.displayText === "R") {
+        if (!squareToLeft.isDisplayed) {
+          squareToLeft.displayText = "M";
+        }
+        square.displayText = "R";
+      }
+      else if (squareToLeft.displayText === "S") {
+        if (!squareToLeft.isDisplayed) {
+          squareToLeft.displayText = "L";
+        }
+        square.displayText = "R";
+      }
+      else if (squareToRight.displayText === "R" || squareToRight.displayText === "M") {
+        square.displayText = "L";
+      }
+      else if (squareToRight.displayText === "L") {
+        if (!squareToRight.isDisplayed) {
+          squareToRight.displayText = "M";
+        }
+        square.displayText = "L";
+      }
+      else if (squareToRight.displayText === "S") {
+        if (!squareToRight.isDisplayed) {
+          squareToRight.displayText = "R";
+        }
+        square.displayText = "L";
+      }
+      else if ((squareToTop.displayText === "T" || squareToTop.displayText === "M") && (squareToBottom.displayText === "B" || squareToBottom.displayText === "M")) {
+        square.displayText = "M";
+      }
+      else if (squareToTop.displayText === "T" || squareToTop.displayText === "M") {
+        square.displayText = "B";
+      }
+      else if (squareToTop.displayText === "B") {
+        if (!squareToTop.isDisplayed) {
+          squareToTop.displayText = "M";
+        }
+        square.displayText = "B";
+      }
+      else if (squareToTop.displayText === "S") {
+        if (!squareToTop.isDisplayed) {
+          squareToTop.displayText = "T";
+        }
+        square.displayText = "B";
+      }
+      else if (squareToBottom.displayText === "B" || squareToBottom.displayText === "M") {
+        square.displayText = "T";
+      }
+      else if (squareToBottom.displayText === "T") {
+        if (!squareToBottom.isDisplayed) {
+          squareToBottom.displayText = "M";
+        }
+        square.displayText = "T";
+      }
+      else if (squareToBottom.displayText === "S") {
+        if (!squareToBottom.isDisplayed) {
+          squareToBottom.displayText = "B";
+        }
+        square.displayText = "T";
+      }
+      else {
+        square.displayText = "S";
+      }
+    }
+    else {
+      square.displayText = "Q";
+
+      squareToLeft = x > 0 ? grid[y][x-1] : {};
+      squareToRight = x < grid.length - 1 ? grid[y][x+1] : {};
+      squareToTop = y > 0 ? grid[y-1][x] : {};
+      squareToBottom = y < grid.length - 1 ? grid[y+1][x] : {};
+
+      if (!squareToLeft.isDisplayed) {
+        if (squareToLeft.displayText === "M") {
+          squareToLeft.displayText = "R";
+        }
+        else if (squareToLeft.displayText === "L") {
+          squareToLeft.displayText = "S";
+        }
+      }
+      if (!squareToRight.isDisplayed) {
+        if (squareToRight.displayText === "M") {
+          squareToRight.displayText = "L";
+        }
+        else if (squareToRight.displayText === "R") {
+          squareToRight.displayText = "S";
+        }
+      }
+      if (!squareToTop.isDisplayed) {
+        if (squareToTop.displayText === "M") {
+          squareToTop.displayText = "B";
+        }
+        else if (squareToTop.displayText === "T") {
+          squareToTop.displayText = "S";
+        }
+      }
+      if (!squareToBottom.isDisplayed) {
+        if (squareToBottom.displayText === "M") {
+          squareToBottom.displayText = "T";
+        }
+        else if (squareToBottom.displayText === "B"){
+          squareToBottom.displayText = "S";
+        }
+      }
+    }
+
     let isFinished = this.isGridCorrect(grid);
     this.setState({grid: grid, finished: isFinished});
   }
