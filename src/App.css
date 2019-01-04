@@ -70,5 +70,5 @@ td.Q {
 }
 
 .grid.finished td:not(.total) {
-  background: #80dd80;
+  border-color: #80dd80;
 }
