@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { ShipList } from './ShipList.js';
 
 class Square extends Component {
     render() {
-      return (<td className={this.props.styleName} x={this.props.x} y={this.props.y} onClick={this.props.onClick.bind(null, this.props.x, this.props.y)}></td>);
+      return (<td className={this.props.styleName + " backgroundImage"} x={this.props.x} y={this.props.y} onClick={this.props.onClick.bind(null, this.props.x, this.props.y)}></td>);
     }
   }
 
@@ -36,26 +37,47 @@ export class Grid extends Component {
         "FFTFFFFFTF"];
       this.rowCounts = [0,0,0,0,0,0,0,0,0,0];
       this.columnCounts = [0,0,0,0,0,0,0,0,0,0];
-      
-      for (let i = 0; i < this.state.gridSize; i++) {
+      this.shipList = [];
+      for (let y = 0; y < this.state.gridSize; y++) {
         let row = [];
       
-        for (let j = 0; j < this.state.gridSize; j++) {
-          let isDisplayed = isDisplayedLookup[i][j] === "T";
-          let displayedType = isDisplayed ? layout[i][j] : "Q";
-          let type = layout[i][j];
+        for (let x = 0; x < this.state.gridSize; x++) {
+          let isDisplayed = isDisplayedLookup[y][x] === "T";
+          let type = layout[y][x];
+          let displayedType = isDisplayed ? type : "Q";
+        
           row.push({type: type, displayedType: displayedType, isDisplayed: isDisplayed, setDisplayType: function(newDisplayType) {
             this.displayedType = this.isDisplayed ? this.displayedType : newDisplayType;
           }});
   
+          if (type === "S") {
+              this.shipList.push(1);
+          }
+          else if (type === "T") {
+              for (let n = y + 1; n < this.state.gridSize; n++) {
+                  if (layout[n][x] === "B") {
+                      this.shipList.push(n - y + 1);
+                      break;
+                  }
+              }
+          }
+          else if (type === "L") {
+              for (let n = x + 1; n < this.state.gridSize; n++) {
+                  if (layout[y][n] === "R") {
+                      this.shipList.push(n - x + 1);
+                  }
+              }
+          }
           if (type !== "W") {
-            this.rowCounts[i]++;
-            this.columnCounts[j]++;
+            this.rowCounts[y]++;
+            this.columnCounts[x]++;
           }
         }
         this.state.grid.push(row);
       }
-  
+      
+      this.shipList = this.shipList.sort((a, b) => b - a);
+
       this.handleClick = this.handleClick.bind(this);
       this.updateSquares = this.updateSquares.bind(this);
     }
@@ -189,16 +211,19 @@ export class Grid extends Component {
   
     render() {
       return (
-        <table className={this.state.finished ? "finished grid" : "grid"}>
-          <tbody>
-              {this.state.grid.map((row, i) => <tr key={i}>{row.map((squareProps, j) => 
-              <Square x={j} y={i} displayedType={squareProps.displayedType} styleName={squareProps.isDisplayed ? squareProps.type + " fixed" : squareProps.displayedType} onClick={this.handleClick} key={i + ' ' + j}/>
-              )}<td className="total">{this.rowCounts[i]}</td></tr>)}
-              <tr>
-                {this.columnCounts.map((count, n) => <td className="total" key={n}>{count}</td>)}
-              </tr>
-          </tbody>
-        </table>
+        <div>
+            <table className={this.state.finished ? "finished grid" : "grid"}>
+            <tbody>
+                {this.state.grid.map((row, i) => <tr key={i}>{row.map((squareProps, j) => 
+                <Square x={j} y={i} displayedType={squareProps.displayedType} styleName={squareProps.isDisplayed ? squareProps.type + " fixed" : squareProps.displayedType} onClick={this.handleClick} key={i + ' ' + j}/>
+                )}<td className="total">{this.rowCounts[i]}</td></tr>)}
+                <tr>
+                    {this.columnCounts.map((count, n) => <td className="total" key={n}>{count}</td>)}
+                </tr>
+            </tbody>
+            </table>
+            <ShipList list={this.shipList}/>
+        </div>
       );
     }
   }
