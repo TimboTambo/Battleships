@@ -3,7 +3,7 @@ import './App.css';
 
 class Square extends Component {
   render() {
-    return (<td class={this.props.styleName} x={this.props.x} y={this.props.y} onClick={this.props.onClick.bind(null, this.props.x, this.props.y)}>{this.props.displayText}</td>);
+    return (<td className={this.props.styleName} x={this.props.x} y={this.props.y} onClick={this.props.onClick.bind(null, this.props.x, this.props.y)}></td>);
   }
 }
 
@@ -14,16 +14,16 @@ class Grid extends Component {
     this.state.gridSize = 10;
     this.state.grid = [];
     let layout = [
-      "SWWWWWWWWW",
-      "SWWWWWWSSS",
+      "TWWWWWWWWW",
+      "BWWWWWWLMR",
       "WWWWWWWWWW",
-      "SWWWSSSSSW",
+      "SWWWLMMMRW",
       "WWSWWWWWWW",
-      "WWWWWSWWSW",
-      "WWWWWWWWSW",
-      "WWWWSSWWSW",
-      "WWSWWWWWSW",
-      "SWSWSSSWWW"];
+      "WWWWWSWWTW",
+      "WWWWWWWWMW",
+      "WWWWLRWWMW",
+      "WWTWWWWWBW",
+      "SWBWLMRWWW"];
     let isDisplayedLookup = [
       "FFFFFFFFFF",
       "TFFFFFFTFT",
@@ -43,11 +43,11 @@ class Grid extends Component {
     
       for (let j = 0; j < this.state.gridSize; j++) {
         let isDisplayed = isDisplayedLookup[i][j] === "T";
-        let displayText = isDisplayed ? layout[i][j] : "?";
+        let displayText = isDisplayed ? layout[i][j] : "Q";
         let type = layout[i][j];
         row.push({type: type, displayText: displayText, isDisplayed: isDisplayed});
 
-        if (type === "S") {
+        if (type !== "W") {
           this.rowCounts[i]++;
           this.columnCounts[j]++;
         }
@@ -77,20 +77,29 @@ class Grid extends Component {
     if (square.isDisplayed) {
       return;
     }
-    square.displayText = square.displayText === "W" ? "S" : "W";
+    let conversionLookup = {
+      "Q":"W",
+      "W":"S", 
+      "S": "L",
+      "L": "T",
+      "T": "R",
+      "R": "B",
+      "B": "M",
+      "M": "Q"};
+    square.displayText = conversionLookup[square.displayText]; 
     let isFinished = this.isGridCorrect(grid);
     this.setState({grid: grid, finished: isFinished});
   }
 
   render() {
     return (
-      <table class={this.state.finished ? "finished grid" : "grid"}>
+      <table className={this.state.finished ? "finished grid" : "grid"}>
         <tbody>
             {this.state.grid.map((row, i) => <tr key={i}>{row.map((squareProps, j) => 
-            <Square x={j} y={i} displayText={squareProps.displayText} styleName={squareProps.isDisplayed ? "fixed" : null} onClick={this.handleClick} key={i + ' ' + j}/>
-            )}<td class="total">{this.rowCounts[i]}</td></tr>)}
+            <Square x={j} y={i} displayText={squareProps.displayText} styleName={squareProps.displayText + (squareProps.isDisplayed ? " fixed" : "")} onClick={this.handleClick} key={i + ' ' + j}/>
+            )}<td className="total">{this.rowCounts[i]}</td></tr>)}
             <tr>
-              {this.columnCounts.map((count, n) => <td class="total" key={n}>{count}</td>)}
+              {this.columnCounts.map((count, n) => <td className="total" key={n}>{count}</td>)}
             </tr>
         </tbody>
       </table>
@@ -104,7 +113,7 @@ class App extends Component {
       <div className="App">
         <div className="App-Body">
           <h2>Play Battleships!</h2>
-          <div class="grid-container">
+          <div className="grid-container">
             <Grid />
           </div>  
         </div>

@@ -21,6 +21,40 @@
   border: 1px solid #bbb;
   width: 25px;
   height: 25px;
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+
+td.T {
+  background-image: url("/images/down.gif");
+}
+
+td.L {
+  background-image: url("/images/right.gif");
+}
+
+td.R {
+  background-image: url("/images/left.gif");
+}
+
+td.B {
+  background-image: url("/images/up.gif");
+}
+
+td.W {
+  background-image: url("/images/water.gif");
+}
+
+td.S {
+  background-image: url("/images/single.gif");
+}
+
+td.M {
+  background-image: url("/images/middle.gif");
+}
+
+td.Q {
+  background-image: url("/images/question_mark.gif");
 }
 
 .grid td:not(.fixed, .total) {
