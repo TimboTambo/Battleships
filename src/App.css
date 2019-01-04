@@ -1,27 +1,28 @@
-.App {
-  text-align: center;
-}
-
-.App-body {
+.App-Body {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding-top: 30px;
   color: white;
+}
+
+.AppTitle {
+  margin-bottom: 0px;
 }
 
 .grid td {
   border: 1px solid #bbb;
   width: 25px;
   height: 25px;
+  text-align: center;
 }
 
 .backgroundImage {
   background-size: 100%;
   background-repeat: no-repeat;
+  background-position: center;
 }
 
 .backgroundImage.T {
@@ -54,6 +55,7 @@
 
 .backgroundImage.Q {
   background-image: url("/images/question_mark.gif");
+  background-size: 125%;
 }
 
 .fixed.backgroundImage.T {
@@ -95,6 +97,7 @@
 .ship span {
   visibility: hidden;
   vertical-align: top;
+  cursor: default;
 }
 
 .ship.found span {
@@ -108,13 +111,21 @@
   margin: 30px 0;
 }
 
+.shipsListHeader {
+  margin-bottom: 5px;
+}
+
+.shipsListDescription {
+  margin-bottom: 10px;
+}
+
 .ship {
   margin: 5px;
   display: inline-block;
 }
 
 .grid td:not(.fixed, .total) {
-  cursor: pointer;
+  cursor: default;
 }
 
 .grid {
@@ -125,7 +136,25 @@
   margin: 0 30px;
 }
 
-.grid.finished td:not(.total) {
+.gridTitle {
+  margin-bottom: 15px;
+}
+
+.success .gridTitle {
+  display: none;
+}
+
+.success td:not(.total) {
   border-color: #80dd80;
+}
+
+.successMessage {
+  display: none;
+  margin-bottom: 15px;
+}
+
+.success .successMessage {
+  display: block;
+  color: greenyellow;
 }
 

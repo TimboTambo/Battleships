@@ -7,7 +7,9 @@ class App extends Component {
     return (
       <div className="App">
         <div className="App-Body">
-          <h2>Play Battleships!</h2>
+          <div className="AppTitle">
+            <h2>Play Battleships!</h2>
+          </div>
           <div className="grid-container">
             <Grid />
           </div>  

@@ -221,8 +221,10 @@ export class Grid extends Component {
   
     render() {
       return (
-        <div>
-            <table className={this.state.finished ? "finished grid" : "grid"}>
+        <div className={this.finished ? "finished" : ""}>
+            <div className="gridTitle">Can you find them all?</div>
+            <div className="successMessage">Success! Refresh to see a new puzzle.</div>
+            <table className="grid">
             <tbody>
                 {this.state.grid.map((row, i) => <tr key={i}>{row.map((squareProps, j) => 
                 <Square x={j} y={i} displayedType={squareProps.displayedType} styleName={squareProps.isDisplayed ? squareProps.type + " fixed" : squareProps.displayedType} onClick={this.handleClick} key={i + ' ' + j}/>

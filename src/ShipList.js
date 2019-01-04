@@ -56,6 +56,12 @@ export class ShipList extends Component
                 }
             }
         }
-        return (<div className="shipsContainer">{ships}</div>);
+        return (<div className="shipsContainer">
+            <h3 className="shipsListHeader">Ships to find</h3>
+            <div className="shipsListDescription">
+                Click ships you've found to keep track of the ones still missing.
+            </div>
+            {ships}
+        </div>);
     }
 }
