@@ -13,8 +13,8 @@
   color: white;
 }
 
-.fixed {
-  background: #bbb;
+.grid td.fixed {
+  border-bottom: 1px solid #606060;
 }
 
 .grid td {

@@ -43,9 +43,11 @@ class Grid extends Component {
     
       for (let j = 0; j < this.state.gridSize; j++) {
         let isDisplayed = isDisplayedLookup[i][j] === "T";
-        let displayText = isDisplayed ? layout[i][j] : "Q";
+        let displayedType = isDisplayed ? layout[i][j] : "Q";
         let type = layout[i][j];
-        row.push({type: type, displayText: displayText, isDisplayed: isDisplayed});
+        row.push({type: type, displayedType: displayedType, isDisplayed: isDisplayed, setDisplayType: function(newDisplayType) {
+          this.displayedType = this.isDisplayed ? this.displayedType : newDisplayType;
+        }});
 
         if (type !== "W") {
           this.rowCounts[i]++;
@@ -63,7 +65,7 @@ class Grid extends Component {
       var row = grid[i];
       for (var j = 0; j < grid.length; j++) {
         var point = row[j];
-        if (point.displayText !== point.type) {
+        if (point.displayedType !== point.type) {
           return false;
         }
       }
@@ -74,130 +76,109 @@ class Grid extends Component {
   handleClick(x, y) {
     let grid = this.state.grid;
     let square = grid[y][x];
-    let squareToLeft, squareToRight, squareToTop, squareToBottom;
+    
     if (square.isDisplayed) {
       return;
     }
     
-    if (square.displayText === "Q") {
-      square.displayText = "W";
+    let squareToLeft = x > 0 ? grid[y][x-1] : {};
+    let squareToRight = x < grid.length - 1 ? grid[y][x+1] : {};
+    let squareToTop = y > 0 ? grid[y-1][x] : {};
+    let squareToBottom = y < grid.length - 1 ? grid[y+1][x] : {};
+    
+    if (square.displayedType === "Q") {
+      square.setDisplayType("W");
     }
-    else if (square.displayText === "W") {
+    else if (square.displayedType === "W") {
       squareToLeft = x > 0 ? grid[y][x-1] : {};
       squareToRight = x < grid.length - 1 ? grid[y][x+1] : {};
       squareToTop = y > 0 ? grid[y-1][x] : {};
       squareToBottom = y < grid.length - 1 ? grid[y+1][x] : {};
 
-      if ((squareToLeft.displayText === "L" || squareToLeft.displayText === "M") && (squareToRight.displayText === "M" || squareToRight.displayText === "R")) {
-        square.displayText = "M";
+      if ((squareToLeft.displayedType === "L" || squareToLeft.displayedType === "M") && (squareToRight.displayedType === "M" || squareToRight.displayedType === "R")) {
+        square.setDisplayType("M");
       }
-      else if (squareToLeft.displayText === "L" || squareToLeft.displayText === "M") {
-        square.displayText = "R";
+      else if (squareToLeft.displayedType === "L" || squareToLeft.displayedType === "M") {
+        square.setDisplayType("R");
       }
-      else if (squareToLeft.displayText === "R") {
-        if (!squareToLeft.isDisplayed) {
-          squareToLeft.displayText = "M";
-        }
-        square.displayText = "R";
+      else if (squareToLeft.displayedType === "R") {
+        squareToLeft.setDisplayType("M");
+        square.setDisplayType("R");
       }
-      else if (squareToLeft.displayText === "S") {
-        if (!squareToLeft.isDisplayed) {
-          squareToLeft.displayText = "L";
-        }
-        square.displayText = "R";
+      else if (squareToLeft.displayedType === "S") {
+        squareToLeft.setDisplayType("L");
+        square.setDisplayType("R");
       }
-      else if (squareToRight.displayText === "R" || squareToRight.displayText === "M") {
-        square.displayText = "L";
+      else if (squareToRight.displayedType === "R" || squareToRight.displayedType === "M") {
+        square.setDisplayType("L");
       }
-      else if (squareToRight.displayText === "L") {
-        if (!squareToRight.isDisplayed) {
-          squareToRight.displayText = "M";
-        }
-        square.displayText = "L";
+      else if (squareToRight.displayedType === "L") {
+        squareToRight.setDisplayType("M");
+        square.setDisplayType("L");
       }
-      else if (squareToRight.displayText === "S") {
-        if (!squareToRight.isDisplayed) {
-          squareToRight.displayText = "R";
-        }
-        square.displayText = "L";
+      else if (squareToRight.displayedType === "S") {
+        squareToRight.setDisplayType("R");
+        square.setDisplayType("L");
       }
-      else if ((squareToTop.displayText === "T" || squareToTop.displayText === "M") && (squareToBottom.displayText === "B" || squareToBottom.displayText === "M")) {
-        square.displayText = "M";
+      else if ((squareToTop.displayedType === "T" || squareToTop.displayedType === "M") && (squareToBottom.displayedType === "B" || squareToBottom.displayedType === "M")) {
+        square.setDisplayType("M");
       }
-      else if (squareToTop.displayText === "T" || squareToTop.displayText === "M") {
-        square.displayText = "B";
+      else if (squareToTop.displayedType === "T" || squareToTop.displayedType === "M") {
+        square.setDisplayType("B");
       }
-      else if (squareToTop.displayText === "B") {
-        if (!squareToTop.isDisplayed) {
-          squareToTop.displayText = "M";
-        }
-        square.displayText = "B";
+      else if (squareToTop.displayedType === "B") {
+        squareToTop.setDisplayType("M");
+        square.setDisplayType("B");
       }
-      else if (squareToTop.displayText === "S") {
-        if (!squareToTop.isDisplayed) {
-          squareToTop.displayText = "T";
-        }
-        square.displayText = "B";
+      else if (squareToTop.displayedType === "S") {
+        squareToTop.setDisplayType("T");
+        square.setDisplayType("B");
       }
-      else if (squareToBottom.displayText === "B" || squareToBottom.displayText === "M") {
-        square.displayText = "T";
+      else if (squareToBottom.displayedType === "B" || squareToBottom.displayedType === "M") {
+        square.setDisplayType("T");
       }
-      else if (squareToBottom.displayText === "T") {
-        if (!squareToBottom.isDisplayed) {
-          squareToBottom.displayText = "M";
-        }
-        square.displayText = "T";
+      else if (squareToBottom.displayedType === "T") {
+        squareToBottom.setDisplayType("M");
+        square.setDisplayType("T");
       }
-      else if (squareToBottom.displayText === "S") {
-        if (!squareToBottom.isDisplayed) {
-          squareToBottom.displayText = "B";
-        }
-        square.displayText = "T";
+      else if (squareToBottom.displayedType === "S") {
+        squareToBottom.setDisplayType("B");
+        square.setDisplayType("T");
       }
       else {
-        square.displayText = "S";
+        square.setDisplayType("S");
       }
     }
     else {
-      square.displayText = "Q";
+      square.setDisplayType("Q");
 
-      squareToLeft = x > 0 ? grid[y][x-1] : {};
-      squareToRight = x < grid.length - 1 ? grid[y][x+1] : {};
-      squareToTop = y > 0 ? grid[y-1][x] : {};
-      squareToBottom = y < grid.length - 1 ? grid[y+1][x] : {};
-
-      if (!squareToLeft.isDisplayed) {
-        if (squareToLeft.displayText === "M") {
-          squareToLeft.displayText = "R";
-        }
-        else if (squareToLeft.displayText === "L") {
-          squareToLeft.displayText = "S";
-        }
+      if (squareToLeft.displayedType === "M") {
+        squareToLeft.setDisplayType("R");
       }
-      if (!squareToRight.isDisplayed) {
-        if (squareToRight.displayText === "M") {
-          squareToRight.displayText = "L";
-        }
-        else if (squareToRight.displayText === "R") {
-          squareToRight.displayText = "S";
-        }
+      else if (squareToLeft.displayedType === "L") {
+        squareToLeft.setDisplayType("S");
       }
-      if (!squareToTop.isDisplayed) {
-        if (squareToTop.displayText === "M") {
-          squareToTop.displayText = "B";
-        }
-        else if (squareToTop.displayText === "T") {
-          squareToTop.displayText = "S";
-        }
+      
+      if (squareToRight.displayedType === "M") {
+        squareToRight.setDisplayType("L");
       }
-      if (!squareToBottom.isDisplayed) {
-        if (squareToBottom.displayText === "M") {
-          squareToBottom.displayText = "T";
-        }
-        else if (squareToBottom.displayText === "B"){
-          squareToBottom.displayText = "S";
-        }
+      else if (squareToRight.displayedType === "R") {
+        squareToRight.setDisplayType("S");
       }
+      
+      if (squareToTop.displayedType === "M") {
+        squareToTop.setDisplayType("B");
+      }
+      else if (squareToTop.displayedType === "T") {
+        squareToTop.setDisplayType("S");
+      }
+    
+      if (squareToBottom.displayedType === "M") {
+        squareToBottom.setDisplayType("T");
+      }
+      else if (squareToBottom.displayedType === "B"){
+        squareToBottom.setDisplayType("S");
+      }  
     }
 
     let isFinished = this.isGridCorrect(grid);
@@ -209,7 +190,7 @@ class Grid extends Component {
       <table className={this.state.finished ? "finished grid" : "grid"}>
         <tbody>
             {this.state.grid.map((row, i) => <tr key={i}>{row.map((squareProps, j) => 
-            <Square x={j} y={i} displayText={squareProps.displayText} styleName={squareProps.displayText + (squareProps.isDisplayed ? " fixed" : "")} onClick={this.handleClick} key={i + ' ' + j}/>
+            <Square x={j} y={i} displayedType={squareProps.displayedType} styleName={squareProps.isDisplayed ? squareProps.type + " fixed" : squareProps.displayedType} onClick={this.handleClick} key={i + ' ' + j}/>
             )}<td className="total">{this.rowCounts[i]}</td></tr>)}
             <tr>
               {this.columnCounts.map((count, n) => <td className="total" key={n}>{count}</td>)}
