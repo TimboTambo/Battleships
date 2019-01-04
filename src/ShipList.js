@@ -13,14 +13,14 @@ class Ship extends Component {
 
     render() {
         if (this.props.shipLength === 1) {
-            return <div onClick={this.handleClick} className={"ship shipSquare backgroundImage S" + (this.state.found ? " found" : "")}><span>X</span></div>
+            return <div onClick={this.handleClick} className={"ship shipSquare backgroundImage S" + (this.state.found ? " found" : "")}><span>✓</span></div>
         }
         
-        let shipJsx = [<div className="shipSquare backgroundImage L"><span>X</span></div>];
+        let shipJsx = [<div className="shipSquare backgroundImage L"><span>✓</span></div>];
         for (let i = 1; i < this.props.shipLength - 1; i++) {
-            shipJsx.push(<div className="shipSquare backgroundImage M"><span>X</span></div>);
+            shipJsx.push(<div className="shipSquare backgroundImage M"><span>✓</span></div>);
         }
-        shipJsx.push(<div className="shipSquare backgroundImage R"><span>X</span></div>);
+        shipJsx.push(<div className="shipSquare backgroundImage R"><span>✓</span></div>);
         return <div onClick={this.handleClick} className={"ship" + (this.state.found ? " found" : "")}>{shipJsx}</div>;
     }
 }

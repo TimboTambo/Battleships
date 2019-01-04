@@ -107,6 +107,11 @@ export class Grid extends Component {
         if ((squareToLeft.displayedType === "L" || squareToLeft.displayedType === "M") && (squareToRight.displayedType === "M" || squareToRight.displayedType === "R")) {
           square.setDisplayType("M");
         }
+        else if (squareToLeft.displayedType === "S" && squareToRight.displayedType === "S") {
+          squareToLeft.setDisplayType("L");
+          squareToRight.setDisplayType("R");
+          square.setDisplayType("M");
+        }
         else if (squareToLeft.displayedType === "L" || squareToLeft.displayedType === "M") {
           square.setDisplayType("R");
         }
@@ -131,6 +136,11 @@ export class Grid extends Component {
         }
         else if ((squareToTop.displayedType === "T" || squareToTop.displayedType === "M") && (squareToBottom.displayedType === "B" || squareToBottom.displayedType === "M")) {
           square.setDisplayType("M");
+        }
+        else if (squareToTop.displayedType === "S" && squareToBottom.displayedType === "S") {
+            squareToTop.setDisplayType("T");
+            squareToBottom.setDisplayType("B");
+            square.setDisplayType("M");
         }
         else if (squareToTop.displayedType === "T" || squareToTop.displayedType === "M") {
           square.setDisplayType("B");
