@@ -46,6 +46,7 @@ export class Grid extends Component {
               for (let n = x + 1; n < this.state.gridSize; n++) {
                   if (layout[y][n] === "R") {
                       this.shipList.push(n - x + 1);
+                      break;
                   }
               }
           }
@@ -355,7 +356,7 @@ export class Grid extends Component {
   
     render() {
       return (
-        <div className={this.finished ? "finished" : ""}>
+        <div className={this.state.finished ? "success" : ""}>
             <div className="gridTitle">Can you find them all?</div>
             <div className="successMessage">Success! Refresh to see a new puzzle.</div>
             <table className="grid">
