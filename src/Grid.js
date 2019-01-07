@@ -13,30 +13,11 @@ export class Grid extends Component {
       this.state = {};
       this.state.gridSize = 10;
       this.state.grid = [];
-      let layout = [
-        "TWWWWWWWWW",
-        "BWWWWWWLMR",
-        "WWWWWWWWWW",
-        "SWWWLMMMRW",
-        "WWSWWWWWWW",
-        "WWWWWSWWTW",
-        "WWWWWWWWMW",
-        "WWWWLRWWMW",
-        "WWTWWWWWBW",
-        "SWBWLMRWWW"];
-      let isDisplayedLookup = [
-        "FFFFFFFFFF",
-        "TFFFFFFTFT",
-        "FFFFFFFFFF",
-        "FFFFFFFFFF",
-        "FFTFFTFFFF",
-        "FFFFTFFFFF",
-        "FFFFFFFFFF",
-        "FFTFFFFFFF",
-        "FFFFFFFTFF",
-        "FFTFFFFFTF"];
-      this.rowCounts = [0,0,0,0,0,0,0,0,0,0];
-      this.columnCounts = [0,0,0,0,0,0,0,0,0,0];
+      let layout = this.generateGrid(this.state.gridSize);
+      console.log(layout);
+      let isDisplayedLookup = this.generateSquaresToShow(layout);
+      this.rowCounts = Array(this.state.gridSize).fill(0)
+      this.columnCounts = Array(this.state.gridSize).fill(0);
       this.shipList = [];
       for (let y = 0; y < this.state.gridSize; y++) {
         let row = [];
@@ -82,6 +63,149 @@ export class Grid extends Component {
       this.updateSquares = this.updateSquares.bind(this);
     }
   
+    getRandomCoord(max) {
+        return [Math.floor(Math.random() * max), Math.floor(Math.random() * max)];
+    }
+
+    getRandomDirection() {
+        let directions = ["down", "across"];
+        return directions[Math.round(Math.random())];
+    }
+
+    placeShip(grid, shipLength) {
+        let coord = this.getRandomCoord(grid.length);
+        let direction = this.getRandomDirection();
+        let x = coord[0];
+        let y = coord[1];
+
+        if (direction === "down") {
+            if (y + shipLength > grid.length) {
+                return false;
+            }
+            for (let j = 0; j < shipLength; j++) {
+                if (grid[y + j][x] !== "U") {
+                    return false;
+                }
+            }
+            for (let xPos = x - 1; xPos <= x + 1; xPos++) {
+                if (xPos < 0 || xPos >= grid.length) {
+                    continue;
+                }
+                for (let yPos = y - 1; yPos <= y + shipLength; yPos++) {
+                    if (yPos < 0 || yPos >= grid.length) {
+                        continue;
+                    }
+                    grid[yPos][xPos] = "W";
+                }
+            }
+
+            for (let yPos = y; yPos < y + shipLength; yPos++) {
+                if (shipLength === 1) {
+                    grid[yPos][x] = "S";
+                }
+                else if (yPos === y) {
+                    grid[yPos][x] = "T";
+                }
+                else if (yPos === y + shipLength - 1) {
+                    grid[yPos][x] = "B";
+                }
+                else {
+                    grid[yPos][x] = "M";
+                }
+            }
+            return true;
+        }
+
+        if (x + shipLength > grid.length) {
+            return false;
+        }
+        for (let j = 0; j < shipLength; j++) {
+            if (grid[y][x+j] !== "U") {
+                return false;
+            }
+        }
+        for (let yPos = y - 1; yPos <= y + 1; yPos++) {
+            if (yPos < 0 || yPos >= grid.length) {
+                continue;
+            }
+            for (let xPos = x - 1; xPos <= x + shipLength; xPos++) {
+                if (xPos < 0 || xPos >= grid.length) {
+                    continue;
+                }
+                grid[yPos][xPos] = "W";
+            }
+        }
+
+        for (let xPos = x; xPos < x + shipLength; xPos++) {
+            if (shipLength === 1) {
+                grid[y][xPos] = "S";
+            }
+            else if (xPos === x) {
+                grid[y][xPos] = "L";
+            }
+            else if (xPos === x + shipLength - 1) {
+                grid[y][xPos] = "R";
+            }
+            else {
+                grid[y][xPos] = "M";
+            }
+        }
+
+        return true;
+    }
+
+    generateGrid(size) {
+        var shipsToGenerate = [5, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+        var grid = [];
+        for (let i = 0; i < size; i++) {
+            grid.push(Array(size).fill("U"));
+        }
+
+        for (let i = 0; i < shipsToGenerate.length; i++) {
+            let shipLength = shipsToGenerate[i];
+            let shipPlaced = false;
+
+            while (!shipPlaced) {
+                shipPlaced = this.placeShip(grid, shipLength)
+            }
+        }
+        console.log(grid);
+        return grid.map(row => row.map(square => square === "U" ? "W" : square));
+    }
+
+    generateSquaresToShow(grid) {
+        let shipSquaresToShow = 5;
+        let nonShipSquaresToShow = 5;
+
+        let showGrid = [];
+        for (let i = 0; i < grid.length; i++) {
+            showGrid.push(Array(grid.length).fill("F"));
+        }
+
+        while (shipSquaresToShow > 0 || nonShipSquaresToShow > 0) {
+            let coord = this.getRandomCoord(grid.length);
+            let x = coord[0];
+            let y = coord[1];
+            if (showGrid[y][x] === "T") {
+                continue;
+            }
+            if (grid[y][x] === "W") {
+                if (nonShipSquaresToShow > 0) {
+                    showGrid[y][x] = "T";
+                    nonShipSquaresToShow--;
+                }
+            }
+            else {
+                if (shipSquaresToShow > 0) {
+                    showGrid[y][x] = "T";
+                    shipSquaresToShow--;
+                }
+            }
+        }
+        console.log(showGrid);
+        return showGrid;
+    }
+
     updateSquares(x, y) {
       let grid = this.state.grid;
       let square = grid[y][x];
@@ -115,6 +239,11 @@ export class Grid extends Component {
         else if (squareToLeft.displayedType === "L" || squareToLeft.displayedType === "M") {
           square.setDisplayType("R");
         }
+        else if (squareToLeft.displayedType === "R" && squareToRight.displayedType === "L") {
+            square.setDisplayType("M");
+            squareToLeft.setDisplayType("M");
+            squareToRight.setDisplayType("M");
+        }
         else if (squareToLeft.displayedType === "R") {
           squareToLeft.setDisplayType("M");
           square.setDisplayType("R");
@@ -144,6 +273,11 @@ export class Grid extends Component {
         }
         else if (squareToTop.displayedType === "T" || squareToTop.displayedType === "M") {
           square.setDisplayType("B");
+        }
+        else if (squareToTop.displayedType === "B" && squareToBottom.displayedType === "T") {
+            square.setDisplayType("M");
+            squareToTop.setDisplayType("M");
+            squareToBottom.setDisplayType("M");
         }
         else if (squareToTop.displayedType === "B") {
           squareToTop.setDisplayType("M");

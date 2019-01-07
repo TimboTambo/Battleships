@@ -13,14 +13,14 @@ class Ship extends Component {
 
     render() {
         if (this.props.shipLength === 1) {
-            return <div onClick={this.handleClick} className={"ship shipSquare backgroundImage S" + (this.state.found ? " found" : "")}><span>✓</span></div>
+            return <div key="0" onClick={this.handleClick} className={"ship shipSquare backgroundImage S" + (this.state.found ? " found" : "")}><span>✓</span></div>
         }
         
-        let shipJsx = [<div className="shipSquare backgroundImage L"><span>✓</span></div>];
+        let shipJsx = [<div key="0" className="shipSquare backgroundImage L"><span>✓</span></div>];
         for (let i = 1; i < this.props.shipLength - 1; i++) {
-            shipJsx.push(<div className="shipSquare backgroundImage M"><span>✓</span></div>);
+            shipJsx.push(<div key={i} className="shipSquare backgroundImage M"><span>✓</span></div>);
         }
-        shipJsx.push(<div className="shipSquare backgroundImage R"><span>✓</span></div>);
+        shipJsx.push(<div key={this.props.shipLength} className="shipSquare backgroundImage R"><span>✓</span></div>);
         return <div onClick={this.handleClick} className={"ship" + (this.state.found ? " found" : "")}>{shipJsx}</div>;
     }
 }
@@ -29,7 +29,7 @@ class ShipsOfSize extends Component {
     render() {
         let jsx = [];
         for (let i = 0; i < this.props.numberOfShips; i++) {
-            jsx.push(<Ship shipLength={this.props.shipLength}/>);
+            jsx.push(<Ship key={i} shipLength={this.props.shipLength}/>);
         }
         return <div>{jsx}</div>;
     }
@@ -45,14 +45,14 @@ export class ShipList extends Component
             var length = this.props.list[i];
             
             if (length !== previousLength) {
-                ships.push(<ShipsOfSize numberOfShips={numOfShipsOfLength} shipLength={previousLength}/>);
+                ships.push(<ShipsOfSize key={i} numberOfShips={numOfShipsOfLength} shipLength={previousLength}/>);
                 previousLength = length;
                 numOfShipsOfLength = 1;
             }
             else {
                 numOfShipsOfLength++;
                 if (i === this.props.list.length - 1) {
-                    ships.push(<ShipsOfSize numberOfShips={numOfShipsOfLength} shipLength={length}/>);
+                    ships.push(<ShipsOfSize key={i} numberOfShips={numOfShipsOfLength} shipLength={length}/>);
                 }
             }
         }
