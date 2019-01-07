@@ -7,63 +7,73 @@ class Square extends Component {
     }
   }
 
+class GridPoint {
+    constructor(type, displayedType, isDisplayed) {
+        this.type = type;
+        this.displayedType = displayedType;
+        this.isDisplayed = isDisplayed;
+    }
+
+    setDisplayType = (newDisplayType) => this.displayedType = this.isDisplayed ? this.displayedType : newDisplayType;
+
+    setToWater = () => this.setDisplayType("W");
+    setToTopOfShip = () => this.setDisplayType("T");
+    setToBottomOfShip = () => this.setDisplayType("B");
+    setToMiddleOfShip = () => this.setDisplayType("M");
+    setToLeftOfShip = () => this.setDisplayType("L");
+    setToRightOfShip = () => this.setDisplayType("R");
+    setToSingleShip = () => this.setDisplayType("S");
+    setToUnknownType = () => this.setDisplayType("Q");
+
+    isSingleShip = () => this.displayedType === "S"; 
+    isTopOfShip = () => this.displayedType === "T"; 
+    isBottomOfShip = () => this.displayedType === "B"; 
+    isMiddleOfShip = () => this.displayedType === "M"; 
+    isLeftOfShip = () => this.displayedType === "L"; 
+    isRightOfShip = () => this.displayedType === "R"; 
+    isWater = () => this.displayedType === "W"; 
+    isUnknownType = () => this.displayedType === "Q";
+}
+
 export class Grid extends Component {
     constructor(props) {
       super(props);
       this.state = {};
       this.state.gridSize = 10;
-      this.state.grid = [];
-      let layout = this.generateGrid(this.state.gridSize);
-      console.log(layout);
-      let isDisplayedLookup = this.generateSquaresToShow(layout);
-      this.rowCounts = Array(this.state.gridSize).fill(0)
-      this.columnCounts = Array(this.state.gridSize).fill(0);
-      this.shipList = [];
-      for (let y = 0; y < this.state.gridSize; y++) {
-        let row = [];
-      
-        for (let x = 0; x < this.state.gridSize; x++) {
-          let isDisplayed = isDisplayedLookup[y][x] === "T";
-          let type = layout[y][x];
-          let displayedType = isDisplayed ? type : "Q";
-        
-          row.push({type: type, displayedType: displayedType, isDisplayed: isDisplayed, setDisplayType: function(newDisplayType) {
-            this.displayedType = this.isDisplayed ? this.displayedType : newDisplayType;
-          }});
-  
-          if (type === "S") {
-              this.shipList.push(1);
-          }
-          else if (type === "T") {
-              for (let n = y + 1; n < this.state.gridSize; n++) {
-                  if (layout[n][x] === "B") {
-                      this.shipList.push(n - y + 1);
-                      break;
-                  }
-              }
-          }
-          else if (type === "L") {
-              for (let n = x + 1; n < this.state.gridSize; n++) {
-                  if (layout[y][n] === "R") {
-                      this.shipList.push(n - x + 1);
-                      break;
-                  }
-              }
-          }
-          if (type !== "W") {
-            this.rowCounts[y]++;
-            this.columnCounts[x]++;
-          }
-        }
-        this.state.grid.push(row);
-      }
-      
-      this.shipList = this.shipList.sort((a, b) => b - a);
+      this.shipList = [5, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+
+      this.initialiseGrid(this.state.gridSize, this.shipList);
 
       this.handleClick = this.handleClick.bind(this);
       this.updateSquares = this.updateSquares.bind(this);
     }
   
+    initialiseGrid(size, ships) {
+      let layout = this.generateShipLayout(size, ships);
+      let isDisplayedLookup = this.generateSquaresToShow(layout);
+      this.rowCounts = Array(size).fill(0)
+      this.columnCounts = Array(size).fill(0);
+      let grid = [];
+      for (let y = 0; y < size; y++) {
+        let row = [];
+      
+        for (let x = 0; x < size; x++) {
+          let isDisplayed = isDisplayedLookup[y][x] === "T";
+          let type = layout[y][x];
+          let displayedType = isDisplayed ? type : "Q";
+        
+          row.push(new GridPoint(type, displayedType, isDisplayed));
+  
+          if (type !== "W") {
+            this.rowCounts[y]++;
+            this.columnCounts[x]++;
+          }
+        }
+        grid.push(row);
+      }
+      this.state.grid = grid;
+    }
+
     getRandomCoord(max) {
         return [Math.floor(Math.random() * max), Math.floor(Math.random() * max)];
     }
@@ -155,8 +165,7 @@ export class Grid extends Component {
         return true;
     }
 
-    generateGrid(size) {
-        var shipsToGenerate = [5, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+    generateShipLayout(size, shipsToGenerate) {
         var grid = [];
         for (let i = 0; i < size; i++) {
             grid.push(Array(size).fill("U"));
@@ -170,7 +179,6 @@ export class Grid extends Component {
                 shipPlaced = this.placeShip(grid, shipLength)
             }
         }
-        console.log(grid);
         return grid.map(row => row.map(square => square === "U" ? "W" : square));
     }
 
@@ -203,7 +211,6 @@ export class Grid extends Component {
                 }
             }
         }
-        console.log(showGrid);
         return showGrid;
     }
 
@@ -215,123 +222,118 @@ export class Grid extends Component {
         return;
       }
       
-      let squareToLeft = x > 0 ? grid[y][x-1] : {};
-      let squareToRight = x < grid.length - 1 ? grid[y][x+1] : {};
-      let squareToTop = y > 0 ? grid[y-1][x] : {};
-      let squareToBottom = y < grid.length - 1 ? grid[y+1][x] : {};
+      let squareToLeft = x > 0 ? grid[y][x-1] : new GridPoint();
+      let squareToRight = x < grid.length - 1 ? grid[y][x+1] : new GridPoint();
+      let squareToTop = y > 0 ? grid[y-1][x] : new GridPoint();
+      let squareToBottom = y < grid.length - 1 ? grid[y+1][x] : new GridPoint();
       
-      if (square.displayedType === "Q") {
-        square.setDisplayType("W");
+      if (square.isUnknownType()) {
+        square.setToWater();
       }
-      else if (square.displayedType === "W") {
-        squareToLeft = x > 0 ? grid[y][x-1] : {};
-        squareToRight = x < grid.length - 1 ? grid[y][x+1] : {};
-        squareToTop = y > 0 ? grid[y-1][x] : {};
-        squareToBottom = y < grid.length - 1 ? grid[y+1][x] : {};
-  
-        if ((squareToLeft.displayedType === "L" || squareToLeft.displayedType === "M") && (squareToRight.displayedType === "M" || squareToRight.displayedType === "R")) {
-          square.setDisplayType("M");
+      else if (square.isWater()) {
+        if ((squareToLeft.isLeftOfShip() || squareToLeft.isMiddleOfShip()) && (squareToRight.isMiddleOfShip() || squareToRight.isRightOfShip())) {
+          square.setToMiddleOfShip();
         }
-        else if (squareToLeft.displayedType === "S" && squareToRight.displayedType === "S") {
-          squareToLeft.setDisplayType("L");
-          squareToRight.setDisplayType("R");
-          square.setDisplayType("M");
+        else if (squareToLeft.isSingleShip() && squareToRight.isSingleShip()) {
+          squareToLeft.setToLeftOfShip();
+          squareToRight.setToRightOfShip();
+          square.setToMiddleOfShip();
         }
-        else if (squareToLeft.displayedType === "L" || squareToLeft.displayedType === "M") {
-          square.setDisplayType("R");
+        else if (squareToLeft.isLeftOfShip() || squareToLeft.isMiddleOfShip()) {
+          square.setToRightOfShip();
         }
-        else if (squareToLeft.displayedType === "R" && squareToRight.displayedType === "L") {
-            square.setDisplayType("M");
-            squareToLeft.setDisplayType("M");
-            squareToRight.setDisplayType("M");
+        else if (squareToLeft.isRightOfShip() && squareToRight.isLeftOfShip()) {
+            square.setToMiddleOfShip();
+            squareToLeft.setToMiddleOfShip();
+            squareToRight.setToMiddleOfShip();
         }
-        else if (squareToLeft.displayedType === "R") {
-          squareToLeft.setDisplayType("M");
-          square.setDisplayType("R");
+        else if (squareToLeft.isRightOfShip()) {
+          squareToLeft.setToMiddleOfShip();
+          square.setToRightOfShip();
         }
-        else if (squareToLeft.displayedType === "S") {
-          squareToLeft.setDisplayType("L");
-          square.setDisplayType("R");
+        else if (squareToLeft.isSingleShip()) {
+          squareToLeft.setToLeftOfShip();
+          square.setToRightOfShip();
         }
-        else if (squareToRight.displayedType === "R" || squareToRight.displayedType === "M") {
-          square.setDisplayType("L");
+        else if (squareToRight.isRightOfShip() || squareToRight.isMiddleOfShip()) {
+          square.setToLeftOfShip();
         }
-        else if (squareToRight.displayedType === "L") {
-          squareToRight.setDisplayType("M");
-          square.setDisplayType("L");
+        else if (squareToRight.isLeftOfShip()) {
+          squareToRight.setToMiddleOfShip();
+          square.setToLeftOfShip();
         }
-        else if (squareToRight.displayedType === "S") {
-          squareToRight.setDisplayType("R");
-          square.setDisplayType("L");
+        else if (squareToRight.isSingleShip()) {
+          squareToRight.setToRightOfShip();
+          square.setToLeftOfShip();
         }
-        else if ((squareToTop.displayedType === "T" || squareToTop.displayedType === "M") && (squareToBottom.displayedType === "B" || squareToBottom.displayedType === "M")) {
-          square.setDisplayType("M");
+        else if ((squareToTop.isTopOfShip() || squareToTop.isMiddleOfShip()) && (squareToBottom.isBottomOfShip() || squareToBottom.isMiddleOfShip())) {
+          square.setToMiddleOfShip();
         }
-        else if (squareToTop.displayedType === "S" && squareToBottom.displayedType === "S") {
-            squareToTop.setDisplayType("T");
-            squareToBottom.setDisplayType("B");
-            square.setDisplayType("M");
+        else if (squareToTop.isSingleShip() && squareToBottom.isSingleShip()) {
+            squareToTop.setToTopOfShip();
+            squareToBottom.setToBottomOfShip();
+            square.setToMiddleOfShip();
         }
-        else if (squareToTop.displayedType === "T" || squareToTop.displayedType === "M") {
-          square.setDisplayType("B");
+        else if (squareToTop.isTopOfShip() || squareToTop.isMiddleOfShip()) {
+          square.setToBottomOfShip();
         }
-        else if (squareToTop.displayedType === "B" && squareToBottom.displayedType === "T") {
-            square.setDisplayType("M");
-            squareToTop.setDisplayType("M");
-            squareToBottom.setDisplayType("M");
+        else if (squareToTop.isBottomOfShip() && squareToBottom.isTopOfShip()) {
+            square.setToMiddleOfShip();
+            squareToTop.setToMiddleOfShip();
+            squareToBottom.setToMiddleOfShip();
         }
-        else if (squareToTop.displayedType === "B") {
-          squareToTop.setDisplayType("M");
-          square.setDisplayType("B");
+        else if (squareToTop.isBottomOfShip()) {
+          squareToTop.setToMiddleOfShip();
+          square.setToBottomOfShip();
         }
-        else if (squareToTop.displayedType === "S") {
-          squareToTop.setDisplayType("T");
-          square.setDisplayType("B");
+        else if (squareToTop.isSingleShip()) {
+          squareToTop.setToTopOfShip();
+          square.setToBottomOfShip();
         }
-        else if (squareToBottom.displayedType === "B" || squareToBottom.displayedType === "M") {
-          square.setDisplayType("T");
+        else if (squareToBottom.isBottomOfShip() || squareToBottom.isMiddleOfShip()) {
+          square.setToTopOfShip();
         }
-        else if (squareToBottom.displayedType === "T") {
-          squareToBottom.setDisplayType("M");
-          square.setDisplayType("T");
+        else if (squareToBottom.isTopOfShip()) {
+          squareToBottom.setToMiddleOfShip();
+          square.setToTopOfShip();
         }
-        else if (squareToBottom.displayedType === "S") {
-          squareToBottom.setDisplayType("B");
-          square.setDisplayType("T");
+        else if (squareToBottom.isSingleShip()) {
+          squareToBottom.setToBottomOfShip();
+          square.setToTopOfShip();
         }
         else {
-          square.setDisplayType("S");
+          square.setToSingleShip();
         }
       }
       else {
-        square.setDisplayType("Q");
+        square.setToUnknownType();
   
-        if (squareToLeft.displayedType === "M") {
-          squareToLeft.setDisplayType("R");
+        if (squareToLeft.isMiddleOfShip()) {
+          squareToLeft.setToRightOfShip();
         }
-        else if (squareToLeft.displayedType === "L") {
-          squareToLeft.setDisplayType("S");
-        }
-        
-        if (squareToRight.displayedType === "M") {
-          squareToRight.setDisplayType("L");
-        }
-        else if (squareToRight.displayedType === "R") {
-          squareToRight.setDisplayType("S");
+        else if (squareToLeft.isLeftOfShip()) {
+          squareToLeft.setToSingleShip();
         }
         
-        if (squareToTop.displayedType === "M") {
-          squareToTop.setDisplayType("B");
+        if (squareToRight.isMiddleOfShip()) {
+          squareToRight.setToLeftOfShip();
         }
-        else if (squareToTop.displayedType === "T") {
-          squareToTop.setDisplayType("S");
+        else if (squareToRight.isRightOfShip()) {
+          squareToRight.setToSingleShip();
+        }
+        
+        if (squareToTop.isMiddleOfShip()) {
+          squareToTop.setToBottomOfShip();
+        }
+        else if (squareToTop.isTopOfShip()) {
+          squareToTop.setToSingleShip();
         }
       
-        if (squareToBottom.displayedType === "M") {
-          squareToBottom.setDisplayType("T");
+        if (squareToBottom.isMiddleOfShip()) {
+          squareToBottom.setToTopOfShip();
         }
-        else if (squareToBottom.displayedType === "B"){
-          squareToBottom.setDisplayType("S");
+        else if (squareToBottom.isBottomOfShip()){
+          squareToBottom.setToSingleShip();
         }  
       }
     }
